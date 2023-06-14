@@ -16,11 +16,12 @@ func OssClientInit() error {
 	ossAccessKey := os.Getenv("CRAWLAB_OSS_ACCESS_KEY")
 	ossAccessSecret := os.Getenv("CRAWLAB_OSS_SECRET")
 	ossBucketName := os.Getenv("CRAWLAB_OSS_BUCKET")
+
 	if ossEndpoint == "" || ossAccessKey == "" || ossAccessSecret == "" {
 		log.Error("oss参数获取失败")
 	}
 
-	ossClient, err := oss.New("oss-us-west-1.aliyuncs.com", ossAccessKey, ossAccessSecret)
+	ossClient, err := oss.New(ossEndpoint, ossAccessKey, ossAccessSecret)
 	if err != nil {
 		log.Error(err)
 		return err
