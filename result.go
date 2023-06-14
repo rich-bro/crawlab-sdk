@@ -3,12 +3,10 @@ package sdk
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	grpc "github.com/crawlab-team/crawlab-grpc"
-	"github.com/crawlab-team/go-trace"
-	"github.com/ngaut/log"
 	"github.com/rich-bro/crawlab-sdk/entity"
 	"github.com/rich-bro/crawlab-sdk/interfaces"
+	"github.com/crawlab-team/go-trace"
 )
 
 var RS *ResultService
@@ -93,44 +91,12 @@ func GetResultService(opts ...ResultServiceOption) interfaces.ResultService {
 
 	// initialize
 	if err := svc.init(); err != nil {
-		//panic(err)
-		log.Fatal(err.Error())
+		panic(err)
 	}
 
 	RS = svc
 
 	return svc
-}
-
-func SaveFileToOss(task entity.OssTask) error {
-	err := OssClientInit()
-	if err != nil {
-		log.Fatalf(err.Error())
-		return err
-	}
-
-	switch task.Type {
-	case 1:
-		if task.FilePath == "" || task.OssPath == "" {
-			return errors.New("file path or oss path is null")
-		}
-		err = OssBucket.PutObjectFromFile(task.OssPath, task.FilePath)
-	case 2:
-		if task.FileIOReader == nil {
-			return errors.New("file is reader is null")
-		}
-		err = OssBucket.PutObject(task.OssPath, task.FileIOReader)
-	default:
-		err = errors.New("not match type")
-	}
-
-	if err != nil {
-		log.Fatalf(err.Error())
-		return err
-	}
-
-	return nil
-
 }
 
 func SaveItem(items ...entity.Result) {

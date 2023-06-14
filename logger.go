@@ -7,9 +7,9 @@ import (
 	"github.com/apex/log"
 	"github.com/cenkalti/backoff/v4"
 	grpc "github.com/crawlab-team/crawlab-grpc"
-	"github.com/crawlab-team/go-trace"
 	"github.com/rich-bro/crawlab-sdk/entity"
 	"github.com/rich-bro/crawlab-sdk/interfaces"
+	"github.com/crawlab-team/go-trace"
 	"time"
 )
 
@@ -126,8 +126,7 @@ func GetLogger(opts ...LoggerOption) interfaces.Logger {
 
 	// initialize
 	if err := l.init(); err != nil {
-		//	panic(err.Error())
-		log.Fatalf(err.Error())
+		panic(err)
 	}
 
 	L = l
