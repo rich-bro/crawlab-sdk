@@ -6,7 +6,7 @@ import (
 	"errors"
 	grpc "github.com/crawlab-team/crawlab-grpc"
 	"github.com/crawlab-team/go-trace"
-	"github.com/nadoo/glider/common/log"
+	"github.com/ngaut/log"
 	"github.com/rich-bro/crawlab-sdk/entity"
 	"github.com/rich-bro/crawlab-sdk/interfaces"
 )

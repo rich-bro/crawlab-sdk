@@ -3,10 +3,12 @@ module github.com/rich-bro/crawlab-sdk
 go 1.20
 
 require (
+	github.com/aliyun/aliyun-oss-go-sdk v2.2.7+incompatible
 	github.com/apex/log v1.9.0
 	github.com/cenkalti/backoff/v4 v4.2.1
 	github.com/crawlab-team/crawlab-grpc v0.1.0
 	github.com/crawlab-team/go-trace v0.1.1
+	github.com/ngaut/log v0.0.0-20221012222132-f3329cba28a5
 	github.com/stretchr/testify v1.8.4
 	go.mongodb.org/mongo-driver v1.11.7
 	google.golang.org/grpc v1.55.0
@@ -31,6 +33,7 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/text v0.8.0 // indirect
+	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
