@@ -1,6 +1,6 @@
 # Crawlab 的 Python SDK
 
-中文 | [English](https://github.com/crawlab-team/crawlab-sdk/blob/master/python/README.md)
+中文 | [English](https://github.com/rich-bro/crawlab-sdk/blob/master/python/README.md)
 
 Crawlab 的 Python SDK 主要由 2 部分构成:
 1. CLI 命令行工具

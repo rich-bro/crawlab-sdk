@@ -2,7 +2,7 @@ package sdk
 
 import (
 	"github.com/apex/log"
-	"github.com/crawlab-team/crawlab-sdk/interfaces"
+	"github.com/rich-bro/crawlab-sdk/interfaces"
 )
 
 type LoggerOption func(l log.Interface)

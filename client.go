@@ -5,9 +5,9 @@ import (
 	"github.com/apex/log"
 	"github.com/cenkalti/backoff/v4"
 	grpc2 "github.com/crawlab-team/crawlab-grpc"
-	"github.com/crawlab-team/crawlab-sdk/entity"
-	"github.com/crawlab-team/crawlab-sdk/interfaces"
 	"github.com/crawlab-team/go-trace"
+	"github.com/rich-bro/crawlab-sdk/entity"
+	"github.com/rich-bro/crawlab-sdk/interfaces"
 	"google.golang.org/grpc"
 	"os"
 	"time"
@@ -138,8 +138,11 @@ func GetClient(opts ...ClientOption) interfaces.Client {
 	}
 
 	// initialize
+
 	if err := client.init(); err != nil {
-		panic(err)
+		//panic(err)
+		log.Fatal(err.Error())
+		//log.Debug(err.Error())
 	}
 
 	C = client

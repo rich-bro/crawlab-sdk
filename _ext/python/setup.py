@@ -10,7 +10,7 @@ setup(
     name='crawlab-sdk',
     version='0.6.0-11',
     packages=find_packages(),
-    url='https://github.com/crawlab-team/crawlab-sdk',
+    url='https://github.com/rich-bro/crawlab-sdk',
     license='BSD-3-Clause',
     author='tikazyq',
     author_email='tikazyq@163.com',
