@@ -8,6 +8,7 @@ import (
 	"github.com/crawlab-team/go-trace"
 	"github.com/rich-bro/crawlab-sdk/entity"
 	"github.com/rich-bro/crawlab-sdk/interfaces"
+	"net/http"
 )
 
 var RS *ResultService
@@ -127,6 +128,15 @@ func SaveFileToOss(task entity.OssTask) error {
 
 	return nil
 
+}
+
+func OssVisitLink(ossPath string, expiredTs int64) (string, error) {
+	url, err := OssBucket.SignURL(ossPath, http.MethodGet, expiredTs)
+
+	if err != nil {
+		return "", err
+	}
+	return url, nil
 }
 
 func SaveItem(items ...entity.Result) {
