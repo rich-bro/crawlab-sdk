@@ -102,7 +102,7 @@ func GetResultService(opts ...ResultServiceOption) interfaces.ResultService {
 }
 
 func SaveFileToOss(task entity.OssTask) error {
-	err := OssClientInit()
+	bucket, err := GetOssBucket()
 	if err != nil {
 		return err
 	}
@@ -112,12 +112,12 @@ func SaveFileToOss(task entity.OssTask) error {
 		if task.FilePath == "" || task.OssPath == "" {
 			return errors.New("file path or oss path is null")
 		}
-		err = OssBucket.PutObjectFromFile(task.OssPath, task.FilePath)
+		err = bucket.PutObjectFromFile(task.OssPath, task.FilePath)
 	case 2:
 		if task.FileIOReader == nil {
 			return errors.New("file is reader is null")
 		}
-		err = OssBucket.PutObject(task.OssPath, task.FileIOReader)
+		err = bucket.PutObject(task.OssPath, task.FileIOReader)
 	default:
 		err = errors.New("not match type")
 	}
@@ -131,7 +131,12 @@ func SaveFileToOss(task entity.OssTask) error {
 }
 
 func OssVisitLink(ossPath string, expiredTs int64) (string, error) {
-	url, err := OssBucket.SignURL(ossPath, http.MethodGet, expiredTs)
+	bucket, err := GetOssBucket()
+	if err != nil {
+		return "", err
+	}
+
+	url, err := bucket.SignURL(ossPath, http.MethodGet, expiredTs)
 
 	if err != nil {
 		return "", err

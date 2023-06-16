@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	OssBucket *oss.Bucket
+	ossBucket *oss.Bucket
 )
 
 func OssClientInit() error {
@@ -26,10 +26,23 @@ func OssClientInit() error {
 		return err
 	}
 
-	OssBucket, err = ossClient.Bucket(ossBucketName)
+	ossBucket, err = ossClient.Bucket(ossBucketName)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func GetOssBucket() (bucket *oss.Bucket, err error) {
+	if ossBucket != nil {
+		return ossBucket, nil
+	}
+
+	err = OssClientInit()
+	if err != nil {
+		return nil, err
+	}
+
+	return ossBucket, nil
 }
