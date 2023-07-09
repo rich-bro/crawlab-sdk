@@ -236,8 +236,8 @@ func OssVisitLink(ossPath string, expiredTs int64) (string, error) {
 	return url, nil
 }
 
-func SaveItem(items ...entity.Result) {
-	GetResultService().SaveItem(items...)
+func SaveItem(items ...entity.Result) error {
+	return GetResultService().SaveItem(items...)
 }
 
 func SaveItems(items []entity.Result) {
