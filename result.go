@@ -79,7 +79,7 @@ func switchTable(items []entity.Result) {
 			"oss_images":        []string{"json"},
 			"topics":            []string{"json"},
 			"tags":              []string{"json"},
-			"authors":           []string{"json", "filed:author_id,author_name,author_url"},
+			"authors":           []string{"json", "fields:author_id,author_name,author_url"},
 			"timezone":          []string{"empty", `regex:[\+|-]\d{4}`},
 			"timezone_location": []string{"empty"},
 		}
@@ -116,7 +116,7 @@ func verify(items []entity.Result) error {
 				for _, vfunc := range vfuncs {
 					if len(strings.Split(vfunc, ":")) > 1 {
 						switch strings.Split(vfunc, ":")[0] {
-						case "filed":
+						case "fields":
 							for _, field := range strings.Split(strings.Split(vfunc, ":")[1], ",") {
 								errList := []error{}
 								gjson.Parse(v.(string)).ForEach(func(key, value gjson.Result) bool {
