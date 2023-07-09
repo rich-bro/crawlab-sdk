@@ -9,7 +9,6 @@ import (
 	"github.com/crawlab-team/go-trace"
 	"github.com/rich-bro/crawlab-sdk/entity"
 	"github.com/rich-bro/crawlab-sdk/interfaces"
-	"github.com/rich-bro/data-api/model"
 	"github.com/tidwall/gjson"
 	"net/http"
 	"strconv"
