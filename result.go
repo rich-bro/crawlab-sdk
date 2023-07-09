@@ -48,7 +48,8 @@ func init() {
 		"oss_images":        []string{"json"},
 		"topics":            []string{"json"},
 		"tags":              []string{"json"},
-		"authors":           []string{"json", "filed:author_id,author_name,arthor_url"},
+		"author_names":      []string{"json"},
+		"authors":           []string{"json", "filed:author_id,author_name,author_url"},
 		"timezone":          []string{"empty"},
 		"timezone_location": []string{"empty"},
 	}
@@ -57,7 +58,6 @@ func init() {
 func verify(items []entity.Result) error {
 	for _, item := range items {
 		for k, v := range item {
-
 			if thinktankVerifyKeys[k] != nil {
 				vfuncs := thinktankVerifyKeys[k].([]string)
 				for _, vfunc := range vfuncs {
@@ -65,25 +65,59 @@ func verify(items []entity.Result) error {
 						switch strings.Split(vfunc, ":")[0] {
 						case "filed":
 							for _, field := range strings.Split(strings.Split(vfunc, ":")[1], ",") {
-								if !gjson.Parse(v.(string)).Get(field).Exists() {
-									return errors.New(fmt.Sprintf("ERROR: %s:%s not Exist!", k, field))
+								errList := []error{}
+								gjson.Parse(v.(string)).ForEach(func(key, value gjson.Result) bool {
+									if len(value.String()) != 0 {
+										if !value.Get(field).Exists() {
+											errList = append(errList, errors.New(fmt.Sprintf("ERROR: %s:%s not Exist!", k, field)))
+										}
+									}
+									return true
+								})
+								if len(errList) > 0 {
+									return errList[0]
 								}
 							}
 						case "length":
+							///							log.Debug(vfunc)
 							lenCount, _ := strconv.Atoi(strings.Split(vfunc, ":")[1])
-							if len(strconv.FormatInt(v.(int64), 10)) != lenCount {
-								return errors.New(fmt.Sprintf("ERROR: %s length must be %d", k, lenCount))
+
+							switch v.(type) {
+							case int:
+								if len(strconv.Itoa(v.(int))) != lenCount {
+									return errors.New(fmt.Sprintf("ERROR: %s length must be %d", k, lenCount))
+								}
+							case int64:
+								if len(strconv.FormatInt(v.(int64), 10)) != lenCount {
+									return errors.New(fmt.Sprintf("ERROR: %s length must be %d", k, lenCount))
+								}
 							}
+
 						}
 					} else {
 						switch vfunc {
 						case "empty":
-							if len(v.(string)) == 0 {
-								return errors.New(fmt.Sprintf("ERROR: %s cannot be empty!", k))
+							switch v.(type) {
+							case string:
+								if len(v.(string)) == 0 {
+									return errors.New(fmt.Sprintf("ERROR: %s cannot be empty!", k))
+								}
+							case int:
+								if v.(int) == 0 {
+									return errors.New(fmt.Sprintf("ERROR: %s cannot be empty!", k))
+								}
+							case int64:
+								if v.(int64) == 0 {
+									return errors.New(fmt.Sprintf("ERROR: %s cannot be empty!", k))
+								}
 							}
+
 						case "json":
 							if len(v.(string)) != 0 {
-								_, err := json.Marshal(v.(string))
+								//log.Debug(v)
+								var js json.RawMessage
+								err := json.Unmarshal([]byte(v.(string)), &js)
+								//log.Debug(js)
 								if err != nil {
 									return errors.New(fmt.Sprintf("ERROR: %s json string parse fail!", k))
 								}
