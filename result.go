@@ -114,6 +114,25 @@ func verify(items []entity.Result) error {
 			if thinktankVerifyKeys[k] != nil {
 				vfuncs := thinktankVerifyKeys[k].([]string)
 				for _, vfunc := range vfuncs {
+					log.Debug(v)
+
+					switch v.(type) {
+					case []string:
+						return errors.New(fmt.Sprintf("ERROR: %s cannot be array!", k))
+					case []int:
+						return errors.New(fmt.Sprintf("ERROR: %s cannot be array!", k))
+					case []int64:
+						return errors.New(fmt.Sprintf("ERROR: %s cannot be array!", k))
+					case []interface{}:
+						return errors.New(fmt.Sprintf("ERROR: %s cannot be array!", k))
+					case map[interface{}]interface{}:
+						return errors.New(fmt.Sprintf("ERROR: %s cannot be map!", k))
+					case map[string]interface{}:
+						return errors.New(fmt.Sprintf("ERROR: %s cannot be map!", k))
+					case map[string]string:
+						return errors.New(fmt.Sprintf("ERROR: %s cannot be map!", k))
+					}
+
 					if len(strings.Split(vfunc, ":")) > 1 {
 						switch strings.Split(vfunc, ":")[0] {
 						case "fields":
