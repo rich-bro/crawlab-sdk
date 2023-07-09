@@ -150,15 +150,24 @@ func verify(items []entity.Result) error {
 								}
 							}
 						case "regex":
-							regexStr := strings.Split(vfunc, ":")[1]
-							rs := regexp.MustCompile(regexStr)
-							strArr := rs.FindAllString(v.(string), -1)
-							if len(strArr) != 1 {
-								return errors.New(fmt.Sprintf("ERROR: %s regex %s match error", k, regexStr))
-							}
 
-							if strArr[0] != v.(string) {
-								return errors.New(fmt.Sprintf("ERROR: %s regex %s match error", k, regexStr))
+							switch v.(type) {
+							case string:
+								if len(v.(string)) != 0 {
+									regexStr := strings.Split(vfunc, ":")[1]
+									rs := regexp.MustCompile(regexStr)
+
+									strArr := rs.FindAllString(v.(string), -1)
+									if len(strArr) != 1 {
+										return errors.New(fmt.Sprintf("ERROR: %s regex %s match error", k, regexStr))
+									}
+
+									if strArr[0] != v.(string) {
+										return errors.New(fmt.Sprintf("ERROR: %s regex %s match error", k, regexStr))
+									}
+								}
+							default:
+								return errors.New(fmt.Sprintf("ERROR: %s field type is not string!", k))
 							}
 						}
 					} else {
