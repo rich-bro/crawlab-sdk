@@ -103,6 +103,8 @@ func switchTable(items []entity.Result) {
 			"created_at":     []string{"empty", "int", "length:13"},
 			"updated_at":     []string{"empty", "int", "length:13"},
 		}
+	} else {
+		log.Debug("未匹配，不验证")
 	}
 
 }
