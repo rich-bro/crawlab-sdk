@@ -7,10 +7,12 @@ import (
 	"fmt"
 	grpc "github.com/crawlab-team/crawlab-grpc"
 	"github.com/crawlab-team/go-trace"
+	"github.com/ngaut/log"
 	"github.com/rich-bro/crawlab-sdk/entity"
 	"github.com/rich-bro/crawlab-sdk/interfaces"
 	"github.com/tidwall/gjson"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -25,37 +27,88 @@ type ResultService struct {
 var thinktankVerifyKeys map[string]interface{}
 
 func init() {
-	thinktankVerifyKeys = map[string]interface{}{
-		"title":             []string{"empty"},
-		"site_name":         []string{"empty"},
-		"site_name_cn":      []string{"empty"},
-		"content":           []string{"empty"},
-		"source":            []string{"empty"},
-		"files":             []string{"json"},
-		"images":            []string{"json"},
-		"videos":            []string{"json"},
-		"audios":            []string{"json"},
-		"links":             []string{"json"},
-		"domain":            []string{"empty"},
-		"keywords":          []string{"json"},
-		"lang":              []string{"empty"},
-		"country_cn":        []string{"empty"},
-		"country_code":      []string{"empty"},
-		"created_at":        []string{"empty", "int", "length:13"},
-		"updated_at":        []string{"empty", "int", "length:13"},
-		"created_time":      []string{"empty", "int", "length:10"},
-		"oss_files":         []string{"json"},
-		"oss_images":        []string{"json"},
-		"topics":            []string{"json"},
-		"tags":              []string{"json"},
-		"author_names":      []string{"json"},
-		"authors":           []string{"json", "filed:author_id,author_name,author_url"},
-		"timezone":          []string{"empty"},
-		"timezone_location": []string{"empty"},
+
+}
+
+func containsAll(source map[string]int, target []string) bool {
+	for _, targetStr := range target {
+		//log.Debug(targetStr)
+		//log.Debug(source[targetStr])
+		if source[targetStr] == 0 {
+			return false
+		}
 	}
+	return true
+}
+
+func switchTable(items []entity.Result) {
+
+	fileds := map[string]int{}
+	for _, item := range items {
+		for k, _ := range item {
+			fileds[k] = 1
+		}
+		break
+	}
+	//log.Debug(fileds)
+	//log.Debug(containsAll(fileds, []string{"title", "content", "source", "files", "keywords", "author_names", "authors", "timezone"}))
+	if containsAll(fileds, []string{"title", "content", "source", "files", "keywords", "author_names", "authors", "timezone"}) {
+		//报告
+		log.Debug("验证：报告")
+		thinktankVerifyKeys = map[string]interface{}{
+			"id":                []string{"empty"},
+			"title":             []string{"empty"},
+			"site_name":         []string{"empty"},
+			"site_name_cn":      []string{"empty"},
+			"content":           []string{"empty"},
+			"source":            []string{"empty"},
+			"files":             []string{"json"},
+			"images":            []string{"json"},
+			"videos":            []string{"json"},
+			"audios":            []string{"json"},
+			"links":             []string{"json"},
+			"domain":            []string{"empty"},
+			"keywords":          []string{"json"},
+			"lang":              []string{"empty"},
+			"country_cn":        []string{"empty"},
+			"country_code":      []string{"empty"},
+			"created_at":        []string{"empty", "int", "length:13"},
+			"updated_at":        []string{"empty", "int", "length:13"},
+			"created_time":      []string{"empty", "int", "length:10"},
+			"oss_files":         []string{"json"},
+			"oss_images":        []string{"json"},
+			"topics":            []string{"json"},
+			"tags":              []string{"json"},
+			"authors":           []string{"json", "filed:author_id,author_name,author_url"},
+			"timezone":          []string{"empty", `regex:[\+|-]\d{4}`},
+			"timezone_location": []string{"empty"},
+		}
+
+	} else if containsAll(fileds, []string{"title", "name", "area_of_expertise", "location", "phone", "email", "education", "website"}) {
+		//专家
+		log.Debug("验证：专家")
+		thinktankVerifyKeys = map[string]interface{}{
+			"id":             []string{"empty"},
+			"title":          []string{"json"},
+			"name":           []string{"empty"},
+			"site_name_cn":   []string{"empty"},
+			"site_name":      []string{"empty"},
+			"source":         []string{"empty"},
+			"audios":         []string{"json"},
+			"videos":         []string{"json"},
+			"related_topics": []string{"json"},
+			"files":          []string{"json"},
+			"oss_files":      []string{"json"},
+			"domain":         []string{"empty"},
+			"created_at":     []string{"empty", "int", "length:13"},
+			"updated_at":     []string{"empty", "int", "length:13"},
+		}
+	}
+
 }
 
 func verify(items []entity.Result) error {
+	switchTable(items)
 	for _, item := range items {
 		for k, v := range item {
 			if thinktankVerifyKeys[k] != nil {
@@ -92,7 +145,17 @@ func verify(items []entity.Result) error {
 									return errors.New(fmt.Sprintf("ERROR: %s length must be %d", k, lenCount))
 								}
 							}
+						case "regex":
+							regexStr := strings.Split(vfunc, ":")[1]
+							rs := regexp.MustCompile(regexStr)
+							strArr := rs.FindAllString(v.(string), -1)
+							if len(strArr) != 1 {
+								return errors.New(fmt.Sprintf("ERROR: %s regex %s match error", k, regexStr))
+							}
 
+							if strArr[0] != v.(string) {
+								return errors.New(fmt.Sprintf("ERROR: %s regex %s match error", k, regexStr))
+							}
 						}
 					} else {
 						switch vfunc {
@@ -142,7 +205,10 @@ func verify(items []entity.Result) error {
 func (svc *ResultService) SaveItem(items ...entity.Result) error {
 	err := verify(items)
 	if err != nil {
+		log.Error(err)
 		return err
+	} else {
+		log.Debug("verify true")
 	}
 	svc.save(items)
 	return nil
