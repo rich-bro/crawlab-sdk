@@ -56,32 +56,32 @@ func switchTable(items []entity.Result) {
 		//报告
 		log.Debug("验证：报告")
 		thinktankVerifyKeys = map[string]interface{}{
-			"id":                []string{"empty"},
-			"title":             []string{"empty"},
-			"site_name":         []string{"empty"},
-			"site_name_cn":      []string{"empty"},
-			"content":           []string{"empty"},
-			"source":            []string{"empty"},
-			"files":             []string{"json"},
-			"images":            []string{"json"},
-			"videos":            []string{"json"},
-			"audios":            []string{"json"},
-			"links":             []string{"json"},
-			"domain":            []string{"empty"},
-			"keywords":          []string{"json"},
-			"lang":              []string{"empty"},
-			"country_cn":        []string{"empty"},
-			"country_code":      []string{"empty"},
+			"id":                []string{"empty", "string"},
+			"title":             []string{"empty", "string"},
+			"site_name":         []string{"empty", "string"},
+			"site_name_cn":      []string{"empty", "string"},
+			"content":           []string{"empty", "string"},
+			"source":            []string{"empty", "string"},
+			"files":             []string{"json", "string"},
+			"images":            []string{"json", "string"},
+			"videos":            []string{"json", "string"},
+			"audios":            []string{"json", "string"},
+			"links":             []string{"json", "string"},
+			"domain":            []string{"empty", "string"},
+			"keywords":          []string{"json", "string"},
+			"lang":              []string{"empty", "string"},
+			"country_cn":        []string{"empty", "string"},
+			"country_code":      []string{"empty", "string"},
 			"created_at":        []string{"empty", "int", "length:13"},
 			"updated_at":        []string{"empty", "int", "length:13"},
 			"created_time":      []string{"empty", "int", "length:10"},
-			"oss_files":         []string{"json"},
-			"oss_images":        []string{"json"},
-			"topics":            []string{"json"},
-			"tags":              []string{"json"},
-			"authors":           []string{"json", "fields:author_id,author_name,author_url"},
-			"timezone":          []string{"empty", `regex:[\+|-]\d{4}`},
-			"timezone_location": []string{"empty"},
+			"oss_files":         []string{"json", "string"},
+			"oss_images":        []string{"json", "string"},
+			"topics":            []string{"json", "string"},
+			"tags":              []string{"json", "string"},
+			"authors":           []string{"json", "fields:author_id,author_name,author_url", "string"},
+			"timezone":          []string{"empty", `regex:[\+|-]\d{4}`, "string"},
+			"timezone_location": []string{"empty", "string"},
 		}
 
 	} else if containsAll(fileds, []string{"title", "name", "area_of_expertise", "location", "phone", "email", "education", "website"}) {
@@ -117,25 +117,6 @@ func verify(items []entity.Result) error {
 				vfuncs := thinktankVerifyKeys[k].([]string)
 				for _, vfunc := range vfuncs {
 					//log.Debug(v)
-
-					switch v.(type) {
-					case []string:
-						return errors.New(fmt.Sprintf("ERROR: %s cannot be array!", k))
-					case []int:
-						return errors.New(fmt.Sprintf("ERROR: %s cannot be array!", k))
-					case []int64:
-						return errors.New(fmt.Sprintf("ERROR: %s cannot be array!", k))
-					case []interface{}:
-						return errors.New(fmt.Sprintf("ERROR: %s cannot be array!", k))
-					case []map[string]interface{}:
-						return errors.New(fmt.Sprintf("ERROR: %s cannot be array!", k))
-					case map[interface{}]interface{}:
-						return errors.New(fmt.Sprintf("ERROR: %s cannot be map!", k))
-					case map[string]interface{}:
-						return errors.New(fmt.Sprintf("ERROR: %s cannot be map!", k))
-					case map[string]string:
-						return errors.New(fmt.Sprintf("ERROR: %s cannot be map!", k))
-					}
 
 					if len(strings.Split(vfunc, ":")) > 1 {
 						switch strings.Split(vfunc, ":")[0] {
@@ -199,14 +180,19 @@ func verify(items []entity.Result) error {
 							}
 
 						case "json":
-							if len(v.(string)) != 0 {
-								//log.Debug(v)
-								var js json.RawMessage
-								err := json.Unmarshal([]byte(v.(string)), &js)
-								//log.Debug(js)
-								if err != nil {
-									return errors.New(fmt.Sprintf("ERROR: %s json string parse fail!", k))
+							switch v.(type) {
+							case string:
+								if len(v.(string)) != 0 {
+									//log.Debug(v)
+									var js json.RawMessage
+									err := json.Unmarshal([]byte(v.(string)), &js)
+									//log.Debug(js)
+									if err != nil {
+										return errors.New(fmt.Sprintf("ERROR: %s json string parse fail!", k))
+									}
 								}
+							default:
+								return errors.New(fmt.Sprintf("ERROR: %s field type is not string!", k))
 							}
 
 						case "int":
@@ -216,7 +202,14 @@ func verify(items []entity.Result) error {
 							default:
 								return errors.New(fmt.Sprintf("ERROR: %s field type is not int!", k))
 							}
+						case "string":
+							switch v.(type) {
+							case string:
+							default:
+								return errors.New(fmt.Sprintf("ERROR: %s field type is not string!", k))
+							}
 						}
+
 					}
 				}
 			}
