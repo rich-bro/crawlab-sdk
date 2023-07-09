@@ -4,11 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	grpc "github.com/crawlab-team/crawlab-grpc"
 	"github.com/crawlab-team/go-trace"
 	"github.com/rich-bro/crawlab-sdk/entity"
 	"github.com/rich-bro/crawlab-sdk/interfaces"
+	"github.com/rich-bro/data-api/model"
+	"github.com/tidwall/gjson"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
 var RS *ResultService
@@ -18,8 +23,96 @@ type ResultService struct {
 	sub grpc.TaskService_SubscribeClient
 }
 
-func (svc *ResultService) SaveItem(items ...entity.Result) {
+var thinktankVerifyKeys map[string]interface{}
+
+func init() {
+	thinktankVerifyKeys = map[string]interface{}{
+		"title":             []string{"empty"},
+		"site_name":         []string{"empty"},
+		"site_name_cn":      []string{"empty"},
+		"content":           []string{"empty"},
+		"source":            []string{"empty"},
+		"files":             []string{"json"},
+		"images":            []string{"json"},
+		"videos":            []string{"json"},
+		"audios":            []string{"json"},
+		"links":             []string{"json"},
+		"domain":            []string{"empty"},
+		"keywords":          []string{"json"},
+		"lang":              []string{"empty"},
+		"country_cn":        []string{"empty"},
+		"country_code":      []string{"empty"},
+		"created_at":        []string{"empty", "int", "length:13"},
+		"updated_at":        []string{"empty", "int", "length:13"},
+		"created_time":      []string{"empty", "int", "length:10"},
+		"oss_files":         []string{"json"},
+		"oss_images":        []string{"json"},
+		"topics":            []string{"json"},
+		"tags":              []string{"json"},
+		"authors":           []string{"json", "filed:author_id,author_name,arthor_url"},
+		"timezone":          []string{"empty"},
+		"timezone_location": []string{"empty"},
+	}
+}
+
+func verify(items []entity.Result) error {
+	for _, item := range items {
+		for k, v := range item {
+
+			if thinktankVerifyKeys[k] != nil {
+				vfuncs := thinktankVerifyKeys[k].([]string)
+				for _, vfunc := range vfuncs {
+					if len(strings.Split(vfunc, ":")) > 1 {
+						switch strings.Split(vfunc, ":")[0] {
+						case "filed":
+							for _, field := range strings.Split(strings.Split(vfunc, ":")[1], ",") {
+								if !gjson.Parse(v.(string)).Get(field).Exists() {
+									return errors.New(fmt.Sprintf("ERROR: %s:%s not Exist!", k, field))
+								}
+							}
+						case "length":
+							lenCount, _ := strconv.Atoi(strings.Split(vfunc, ":")[1])
+							if len(strconv.FormatInt(v.(int64), 10)) != lenCount {
+								return errors.New(fmt.Sprintf("ERROR: %s length must be %d", k, lenCount))
+							}
+						}
+					} else {
+						switch vfunc {
+						case "empty":
+							if len(v.(string)) == 0 {
+								return errors.New(fmt.Sprintf("ERROR: %s cannot be empty!", k))
+							}
+						case "json":
+							if len(v.(string)) != 0 {
+								_, err := json.Marshal(v.(string))
+								if err != nil {
+									return errors.New(fmt.Sprintf("ERROR: %s json string parse fail!", k))
+								}
+							}
+
+						case "int":
+							switch v.(type) {
+							case int64:
+							case int:
+							default:
+								return errors.New(fmt.Sprintf("ERROR: %s field type is not int!", k))
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func (svc *ResultService) SaveItem(items ...entity.Result) error {
+	err := verify(items)
+	if err != nil {
+		return err
+	}
 	svc.save(items)
+	return nil
 }
 
 func (svc *ResultService) SaveItems(items []entity.Result) {
