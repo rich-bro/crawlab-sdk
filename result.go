@@ -116,7 +116,7 @@ func verify(items []entity.Result) error {
 			if thinktankVerifyKeys[k] != nil {
 				vfuncs := thinktankVerifyKeys[k].([]string)
 				for _, vfunc := range vfuncs {
-					log.Debug(v)
+					//log.Debug(v)
 
 					switch v.(type) {
 					case []string:
