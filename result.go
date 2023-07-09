@@ -127,6 +127,8 @@ func verify(items []entity.Result) error {
 						return errors.New(fmt.Sprintf("ERROR: %s cannot be array!", k))
 					case []interface{}:
 						return errors.New(fmt.Sprintf("ERROR: %s cannot be array!", k))
+					case []map[string]interface{}:
+						return errors.New(fmt.Sprintf("ERROR: %s cannot be array!", k))
 					case map[interface{}]interface{}:
 						return errors.New(fmt.Sprintf("ERROR: %s cannot be map!", k))
 					case map[string]interface{}:
