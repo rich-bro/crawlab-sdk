@@ -82,8 +82,41 @@ func switchTable(items []entity.Result) {
 			"authors":           []string{"json", "fields:author_id,author_name,author_url", "string"},
 			"timezone":          []string{"empty", `regex:[\+|-]\d{4}`, "string"},
 			"timezone_location": []string{"empty", "string"},
+			"related_authors":   []string{"json", "string"},
 		}
 
+	} else if containsAll(fileds, []string{"title", "content", "source", "files", "keywords", "author_names", "authors", "timezone", "from_author_url"}) {
+		log.Debug("验证：专家报告")
+		thinktankVerifyKeys = map[string]interface{}{
+			"id":                []string{"empty", "string"},
+			"title":             []string{"empty", "string"},
+			"site_name":         []string{"empty", "string"},
+			"site_name_cn":      []string{"empty", "string"},
+			"content":           []string{"empty", "string"},
+			"source":            []string{"empty", "string"},
+			"files":             []string{"json", "string"},
+			"images":            []string{"json", "string"},
+			"videos":            []string{"json", "string"},
+			"audios":            []string{"json", "string"},
+			"links":             []string{"json", "string"},
+			"domain":            []string{"empty", "string"},
+			"keywords":          []string{"json", "string"},
+			"lang":              []string{"empty", "string"},
+			"country_cn":        []string{"empty", "string"},
+			"country_code":      []string{"empty", "string"},
+			"created_at":        []string{"empty", "int", "length:13"},
+			"updated_at":        []string{"empty", "int", "length:13"},
+			"created_time":      []string{"empty", "int", "length:10"},
+			"oss_files":         []string{"json", "string"},
+			"oss_images":        []string{"json", "string"},
+			"topics":            []string{"json", "string"},
+			"tags":              []string{"string", "json"},
+			"authors":           []string{"json", "fields:author_id,author_name,author_url", "string"},
+			"timezone":          []string{"empty", `regex:[\+|-]\d{4}`, "string"},
+			"timezone_location": []string{"empty", "string"},
+			"related_authors":   []string{"json", "string"},
+			"from_author_url":   []string{"empty", "string"},
+		}
 	} else if containsAll(fileds, []string{"title", "name", "area_of_expertise", "location", "phone", "email", "education", "website"}) {
 		//专家
 		log.Debug("验证：专家")
@@ -117,7 +150,6 @@ func verify(items []entity.Result) error {
 				vfuncs := thinktankVerifyKeys[k].([]string)
 				for _, vfunc := range vfuncs {
 					//log.Debug(v)
-
 					if len(strings.Split(vfunc, ":")) > 1 {
 						switch strings.Split(vfunc, ":")[0] {
 						case "fields":
