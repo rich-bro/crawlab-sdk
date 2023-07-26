@@ -121,20 +121,21 @@ func switchTable(items []entity.Result) {
 		//专家
 		log.Debug("验证：专家")
 		thinktankVerifyKeys = map[string]interface{}{
-			"id":             []string{"empty", "string"},
-			"title":          []string{"json", "string"},
-			"name":           []string{"empty", "string"},
-			"site_name_cn":   []string{"empty", "string"},
-			"site_name":      []string{"empty", "string"},
-			"source":         []string{"empty", "string"},
-			"audios":         []string{"json", "string"},
-			"videos":         []string{"json", "string"},
-			"related_topics": []string{"json", "string"},
-			"files":          []string{"json", "string"},
-			"oss_files":      []string{"json", "string"},
-			"domain":         []string{"empty", "string"},
-			"created_at":     []string{"empty", "int", "length:13"},
-			"updated_at":     []string{"empty", "int", "length:13"},
+			"id":                []string{"empty", "string"},
+			"title":             []string{"json", "string"},
+			"name":              []string{"empty", "string"},
+			"site_name_cn":      []string{"empty", "string"},
+			"site_name":         []string{"empty", "string"},
+			"source":            []string{"empty", "string"},
+			"audios":            []string{"json", "string"},
+			"videos":            []string{"json", "string"},
+			"area_of_expertise": []string{"json", "string"},
+			"related_topics":    []string{"json", "string"},
+			"files":             []string{"json", "string"},
+			"oss_files":         []string{"json", "string"},
+			"domain":            []string{"empty", "string"},
+			"created_at":        []string{"empty", "int", "length:13"},
+			"updated_at":        []string{"empty", "int", "length:13"},
 		}
 	} else {
 		log.Debug("未匹配，不验证")
