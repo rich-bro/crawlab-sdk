@@ -11,6 +11,8 @@ import (
 	"github.com/rich-bro/crawlab-sdk/entity"
 	"github.com/rich-bro/crawlab-sdk/interfaces"
 	"github.com/tidwall/gjson"
+	grpc2 "google.golang.org/grpc"
+	"google.golang.org/grpc/encoding/gzip"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -321,7 +323,7 @@ func (svc *ResultService) _save(items []entity.Result) {
 func (svc *ResultService) init() (err error) {
 	c := GetClient()
 	taskClient := c.GetTaskClient()
-	svc.sub, err = taskClient.Subscribe(context.Background())
+	svc.sub, err = taskClient.Subscribe(context.Background(), grpc2.UseCompressor(gzip.Name))
 	if err != nil {
 		return trace.TraceError(err)
 	}
